@@ -22,15 +22,15 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         super.viewDidLoad()
         stopRecordingButton.isEnabled = false
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    
+    func configureUI(recording:Bool){
+        recordlbl.text = recording ? "Recording in Progress" : "Tap to Record"
+        stopRecordingButton.isEnabled = recording
+        recordButton.isEnabled = !recording
     }
     
     @IBAction func recordAudio(_ sender: AnyObject) {
-        recordlbl.text = "Recording in Progress"
-        stopRecordingButton.isEnabled = true
-        recordButton.isEnabled = false
+        configureUI(recording: true)
         let dirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true) [0] as String
         let recordingName = "recordedVoice.wav"
         let pathArray = [dirPath, recordingName]
@@ -46,9 +46,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     }
 
     @IBAction func stopRecording(_ sender: AnyObject) {
-        recordButton.isEnabled = true
-        stopRecordingButton.isEnabled = false
-        recordlbl.text = "Tap to Record"
+        configureUI(recording: false)
         audioRecorder.stop()
         let audioSession = AVAudioSession.sharedInstance()
         try! audioSession.setActive(false)
@@ -61,9 +59,10 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
 
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         if(flag) {
-        self.performSegue(withIdentifier: "stopRecording", sender: audioRecorder.url)
+                performSegue(withIdentifier: "stopRecording", sender: audioRecorder.url)
         } else {
-            print("Error saving Recording Failed")
+            let alert = UIAlertController(title: "Error", message: "Error Saving Recording Failed", preferredStyle: .actionSheet)
+            self.present(alert, animated: true, completion: nil)
         }
     }
     
